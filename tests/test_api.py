@@ -12,9 +12,9 @@ import pytest
 
 pytest.importorskip("fastapi")
 
-from fastapi.testclient import TestClient  # noqa: E402
+from fastapi.testclient import TestClient
 
-from src.config import MODEL_PATH  # noqa: E402
+from src.config import MODEL_PATH
 
 pytestmark = pytest.mark.skipif(
     not MODEL_PATH.exists(), reason="no trained model; run `make train` first"

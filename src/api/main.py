@@ -39,7 +39,7 @@ async def lifespan(app: FastAPI):
     try:
         service.load()
         log.info("Model ready: %s", service.version)
-    except Exception:  # noqa: BLE001
+    except Exception:
         # Boot anyway so /health can report the problem and the orchestrator
         # can restart us, instead of crash-looping before logs are readable.
         log.exception("Model failed to load at start-up")

@@ -56,7 +56,7 @@ class ChurnModelService:
             try:
                 self._load_from_mlflow(uri)
                 return
-            except Exception:  # noqa: BLE001 - fall back rather than fail to boot
+            except Exception:
                 log.exception("Could not load %s; falling back to local artifact", uri)
         self._load_from_disk()
 

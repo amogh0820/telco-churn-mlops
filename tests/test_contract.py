@@ -13,8 +13,8 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from src.api.schemas import EXAMPLE_CUSTOMER, CustomerFeatures  # noqa: E402
-from src.config import (  # noqa: E402
+from src.api.schemas import EXAMPLE_CUSTOMER, CustomerFeatures
+from src.config import (
     CATEGORICAL_FEATURES,
     NUMERIC_FEATURES,
     RAW_FEATURES,

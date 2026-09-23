@@ -25,7 +25,7 @@ def download(force: bool = False) -> None:
         log.info("%s already exists, skipping download", RAW_CSV)
     else:
         log.info("Downloading %s", DATA_URL)
-        urllib.request.urlretrieve(DATA_URL, RAW_CSV)  # noqa: S310 - pinned https URL
+        urllib.request.urlretrieve(DATA_URL, RAW_CSV)
         log.info("Saved to %s", RAW_CSV)
 
     frame = pd.read_csv(RAW_CSV)

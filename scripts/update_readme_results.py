@@ -105,7 +105,7 @@ def render(report: dict) -> str:
     lines.append(f"| Naive 0.50 | ${naive:,.0f} |")
     lines.append(f"| Tuned {threshold:.2f} | ${tuned:,.0f} |")
     lines.append(
-        f"| **Difference** | **{'+' if delta >= 0 else '−'}${abs(delta):,.0f}** |"
+        f"| **Difference** | **{'+' if delta >= 0 else '-'}${abs(delta):,.0f}** |"
     )
     lines.append("")
     cohort = (

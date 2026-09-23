@@ -23,7 +23,7 @@ import argparse
 import json
 import logging
 import platform
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 import joblib
@@ -40,8 +40,8 @@ from sklearn.model_selection import (
 )
 
 from src.config import (
-    CV_FOLDS,
     CUSTOMER_LIFETIME_VALUE,
+    CV_FOLDS,
     ID_COL,
     METADATA_PATH,
     MLFLOW_EXPERIMENT,
@@ -185,7 +185,7 @@ def main(use_mlflow: bool = True, quick: bool = False) -> dict[str, Any]:
 
     results: dict[str, RandomizedSearchCV] = {}
     parent_ctx = (
-        mlflow.start_run(run_name=f"sweep-{datetime.now(timezone.utc):%Y%m%d-%H%M%S}")
+        mlflow.start_run(run_name=f"sweep-{datetime.now(UTC):%Y%m%d-%H%M%S}")
         if use_mlflow
         else _NullRun()
     )
@@ -271,7 +271,7 @@ def main(use_mlflow: bool = True, quick: bool = False) -> dict[str, Any]:
             "test_metrics": report,
             "best_params": {k: str(v) for k, v in results[winner_name].best_params_.items()},
             "raw_features": RAW_FEATURES,
-            "trained_at": datetime.now(timezone.utc).isoformat(),
+            "trained_at": datetime.now(UTC).isoformat(),
             "sklearn_version": sklearn.__version__,
             "python_version": platform.python_version(),
             "top_drivers": drivers,

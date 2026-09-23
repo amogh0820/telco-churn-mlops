@@ -17,7 +17,7 @@ import pytest
 from src.config import MODEL_PATH
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from deploy.huggingface.deploy_to_spaces import build_upload_dir  # noqa: E402
+from deploy.huggingface.deploy_to_spaces import build_upload_dir
 
 
 def test_deploy_module_does_not_import_huggingface_hub_at_load_time():
