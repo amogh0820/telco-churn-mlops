@@ -19,6 +19,7 @@ reports/*
 mlruns/
 mlflow-db/*
 !mlflow-db/.gitkeep
+mlflow.db
 
 # Python
 __pycache__/
