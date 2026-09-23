@@ -4,8 +4,8 @@ A churn model for a telecom subscriber base: a trained scikit-learn pipeline
 served behind FastAPI, tracked with MLflow, containerised with Docker, tested
 end to end, and deployed publicly on Render's free tier.
 
-**Live demo:** _add your Render URL here after deploying, e.g. `https://telco-churn-api.onrender.com/`_
-**Repository:** _add your GitHub URL here_
+**Live demo:** https://telecom-churn-predictor-5ptx.onrender.com/
+**Repository:** https://github.com/amogh0820/telco-churn-mlops
 
 > The first request after a period of inactivity takes 30-60 seconds to
 > respond -- Render's free tier sleeps an idle service and wakes it on the
@@ -58,9 +58,9 @@ chosen here, before the test set is touched.
 
 | Model | CV PR-AUC | Std | |
 |---|---|---|---|
-| Random forest | 0.6641 | ±0.0219 | **selected** |
-| Logistic regression | 0.6629 | ±0.0142 | |
-| Hist gradient boosting | 0.6623 | ±0.0214 | |
+| Random forest | 0.6641 | ï¿½0.0219 | **selected** |
+| Logistic regression | 0.6629 | ï¿½0.0142 | |
+| Hist gradient boosting | 0.6623 | ï¿½0.0214 | |
 
 ### Held-out test performance
 
