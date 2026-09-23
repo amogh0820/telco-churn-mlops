@@ -49,7 +49,7 @@ download step asserts the shape so a silent upstream change fails loudly.
 
 <!-- RESULTS:START -->
 
-_Results from the latest training run on September 20, 2026._
+_Results from the latest training run._
 
 ### Model comparison
 
