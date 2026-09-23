@@ -1,0 +1,16 @@
+# Runtime dependencies -- everything the API container needs and nothing more.
+#
+# scikit-learn is pinned to a narrow range on purpose: a pipeline pickled on one
+# minor version can warn or fail to unpickle on another, and training and
+# serving run in different containers. Keep this range in sync between the
+# machine that runs `make train` and the image that serves the result.
+scikit-learn>=1.5,<1.9
+pandas>=2.2,<4.0
+numpy>=1.26,<3.0
+scipy>=1.11
+joblib>=1.4
+
+fastapi>=0.115,<1.0
+uvicorn[standard]>=0.30
+pydantic>=2.8,<3.0
+gunicorn>=22.0

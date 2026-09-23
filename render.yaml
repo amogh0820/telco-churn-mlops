@@ -1,0 +1,34 @@
+# Render Blueprint -- optional. The README's "Deploying to Render" section
+# walks through the same result by hand in the dashboard, which is the
+# supported path if this file's schema drifts from what Render currently
+# expects (Render's Blueprint keys have changed before). To use this instead:
+# Render dashboard -> New -> Blueprint -> point at this repository.
+#
+# One service only, deliberately: main.py serves the scoring UI at GET / and
+# the API alongside it, so a single free web service is a complete, working
+# deployment with one URL -- no separate static site, no CORS to configure.
+services:
+  - type: web
+    name: telco-churn-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # Render assigns the external port via this variable; the Dockerfile's
+      # CMD already reads it (`--bind 0.0.0.0:${PORT}`), so this only needs
+      # to be set once, to whatever this file (or the dashboard) says.
+      - key: PORT
+        value: "8000"
+      # The free plan gives 512 MB RAM and a fractional CPU. Two gunicorn
+      # workers -- the Dockerfile's own default -- each hold a separate copy
+      # of the fitted pipeline in memory and can tip a small logistic
+      # regression model over that limit once pandas and scikit-learn's own
+      # footprint are counted; one worker fits comfortably. Raise this only
+      # after moving to a paid instance type with more memory.
+      - key: WORKERS
+        value: "1"
+      - key: MODEL_VERSION
+        value: "render"

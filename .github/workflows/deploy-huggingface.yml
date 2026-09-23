@@ -1,0 +1,54 @@
+name: Deploy to Hugging Face Spaces
+
+# Free path: no AWS account, no payment method needed. Runs whenever the
+# HF_SPACE_ID repository variable is set (Settings -> Secrets and variables ->
+# Actions -> Variables), so this workflow does nothing on a fork or a repo
+# that hasn't configured it yet -- it does not fail, it just skips.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+      SPACE_ID: ${{ vars.HF_SPACE_ID }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Skip if not configured
+        id: gate
+        run: |
+          if [ -z "$HF_TOKEN" ] || [ -z "$SPACE_ID" ]; then
+            echo "HF_TOKEN secret or HF_SPACE_ID variable not set; skipping. See README 'Deploying — free' section." >&2
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.skip == 'false'
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
+
+      - name: Install dependencies
+        if: steps.gate.outputs.skip == 'false'
+        run: pip install -r requirements-dev.txt
+
+      - name: Train
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          python -m src.data.download
+          python -m src.data.preprocess
+          python -m src.models.train --no-mlflow
+
+      - name: Push to the Space
+        if: steps.gate.outputs.skip == 'false'
+        run: python -m deploy.huggingface.deploy_to_spaces "$SPACE_ID"

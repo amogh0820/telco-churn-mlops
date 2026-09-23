@@ -1,0 +1,103 @@
+{
+  "model_family": "random_forest",
+  "model_comparison": {
+    "random_forest": {
+      "cv_pr_auc": 0.6640895114037557,
+      "cv_pr_auc_std": 0.02192737787413694,
+      "best_params": {
+        "classifier__max_depth": "8",
+        "classifier__max_features": "0.2049464136538022",
+        "classifier__min_samples_leaf": "26",
+        "classifier__n_estimators": "248"
+      }
+    },
+    "logistic_regression": {
+      "cv_pr_auc": 0.6629129440266559,
+      "cv_pr_auc_std": 0.014236205742398663,
+      "best_params": {
+        "classifier__C": "0.008263688714158009",
+        "classifier__solver": "lbfgs"
+      }
+    },
+    "hist_gradient_boosting": {
+      "cv_pr_auc": 0.6622613908735839,
+      "cv_pr_auc_std": 0.02136023136246061,
+      "best_params": {
+        "classifier__l2_regularization": "0.00011759777738127753",
+        "classifier__learning_rate": "0.019665923318213548",
+        "classifier__max_leaf_nodes": "15",
+        "classifier__min_samples_leaf": "44"
+      }
+    }
+  },
+  "threshold": 0.58,
+  "cost_assumptions": {
+    "retention_offer_cost": 60.0,
+    "customer_lifetime_value": 500.0,
+    "offer_acceptance_rate": 0.35
+  },
+  "cv_pr_auc": 0.6640895114037557,
+  "test_metrics": {
+    "roc_auc": 0.8465925237024982,
+    "pr_auc": 0.6651975185628166,
+    "brier_score": 0.15872057580755894,
+    "threshold": 0.58,
+    "accuracy": 0.7835344215755855,
+    "precision": 0.5741935483870968,
+    "recall": 0.713903743315508,
+    "f1": 0.636471990464839,
+    "true_negatives": 837,
+    "false_positives": 198,
+    "false_negatives": 107,
+    "true_positives": 267,
+    "campaign_value": 18824.999999999993,
+    "campaign_value_at_0.5": 18494.999999999993
+  },
+  "best_params": {
+    "classifier__max_depth": "8",
+    "classifier__max_features": "0.2049464136538022",
+    "classifier__min_samples_leaf": "26",
+    "classifier__n_estimators": "248"
+  },
+  "raw_features": [
+    "tenure",
+    "MonthlyCharges",
+    "TotalCharges",
+    "gender",
+    "SeniorCitizen",
+    "Partner",
+    "Dependents",
+    "PhoneService",
+    "MultipleLines",
+    "InternetService",
+    "OnlineSecurity",
+    "OnlineBackup",
+    "DeviceProtection",
+    "TechSupport",
+    "StreamingTV",
+    "StreamingMovies",
+    "Contract",
+    "PaperlessBilling",
+    "PaymentMethod"
+  ],
+  "trained_at": "2026-09-20T14:26:42.065565+00:00",
+  "sklearn_version": "1.8.0",
+  "python_version": "3.11.9",
+  "top_drivers": {
+    "Contract_Month-to-month": 0.1713299257896338,
+    "OnlineSecurity_No": 0.08504211699185646,
+    "tenure_years": 0.08156267406097577,
+    "Contract_Two year": 0.07828251108774836,
+    "tenure": 0.0777412495023908,
+    "InternetService_Fiber optic": 0.06809111876614107,
+    "TechSupport_No": 0.06650709764194744,
+    "TotalCharges": 0.0518235473266832,
+    "MonthlyCharges": 0.04023535893510335,
+    "avg_monthly_spend": 0.037168770335744866,
+    "PaymentMethod_Electronic check": 0.023263756771370044,
+    "Contract_One year": 0.020966781223745602,
+    "tenure_bucket_0-6m": 0.02017686447664432,
+    "charge_drift": 0.01578370367099547,
+    "InternetService_DSL": 0.014842658481077032
+  }
+}

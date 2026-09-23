@@ -1,0 +1,39 @@
+services:
+  mlflow:
+    build:
+      context: .
+      dockerfile: deploy/mlflow.Dockerfile
+    container_name: churn-mlflow
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlruns:/mlruns
+      - ./mlflow-db:/mlflow-db
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://localhost:5000/health')"
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: churn-api
+    ports:
+      - "8000:8000"
+    environment:
+      # Unset MLFLOW_MODEL_URI (the default) serves the model baked into the
+      # image. The runtime image does not include mlflow, so pulling from the
+      # registry at boot means adding it to requirements.txt first.
+      MODEL_VERSION: local-compose
+      WORKERS: "2"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    restart: unless-stopped

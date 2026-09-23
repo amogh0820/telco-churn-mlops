@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Telco Churn Prediction</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f2f0ec; --surface:#fffefc; --ink:#1a1d20; --muted:#6a6f74; --faint:#8d9095; --line:#dedad2;
+    --accent:#2f4a72; --accent-hover:#25395a; --accent-ink:#ffffff;
+    --risk-low:#2e6b4c; --risk-low-bg:#e8f2ec;
+    --risk-medium:#8a5a10; --risk-medium-bg:#f8f0e1;
+    --risk-high:#9b3a2e; --risk-high-bg:#f9eae7;
+    --radius:6px; --radius-sm:4px;
+    --shadow:0 2px 5px rgba(30,25,15,.05), 0 12px 32px rgba(30,25,15,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{
+      --bg:#131416; --surface:#1c1e21; --ink:#eae8e3; --muted:#989ea3; --faint:#6f7479; --line:#303337;
+      --accent:#82a4d8; --accent-hover:#9ab6e2; --accent-ink:#101215;
+      --risk-low:#7fc39f; --risk-low-bg:#152a20;
+      --risk-medium:#e0ac52; --risk-medium-bg:#2c2210;
+      --risk-high:#e2897a; --risk-high-bg:#331d18;
+      --shadow:0 2px 6px rgba(0,0,0,.35), 0 16px 40px rgba(0,0,0,.35);
+    }
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+    font-size:15px; line-height:1.55;
+  }
+  .page{max-width:1160px;margin:0 auto;padding:0 1.5rem 5rem}
+
+  /* ---------- topbar ---------- */
+  .topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;
+    row-gap:.6rem;padding:1.5rem 0;border-bottom:1px solid var(--line);margin-bottom:3rem;
+  }
+  .brand{font-weight:600;font-size:.95rem;letter-spacing:-.005em}
+  .topbar-right{display:flex;align-items:center;gap:.9rem;flex-wrap:wrap;row-gap:.4rem}
+  .author{font-size:.8rem;color:var(--faint)}
+  .api-status{
+    display:flex;align-items:center;gap:.5rem;font-size:.8rem;color:var(--muted);
+    padding-left:.9rem;border-left:1px solid var(--line);
+  }
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--faint);flex:0 0 auto}
+  .dot-ok{background:var(--risk-low)}
+  .dot-bad{background:var(--risk-high)}
+
+  /* ---------- hero ---------- */
+  .hero{max-width:46rem;margin-bottom:1.25rem}
+  .hero h1{
+    font-size:clamp(1.9rem,3.2vw,2.5rem);font-weight:600;margin:0 0 .6rem;
+    letter-spacing:-.015em;line-height:1.12;
+  }
+  .hero p{color:var(--muted);margin:0;font-size:1.02rem;max-width:38rem}
+
+  /* ---------- technical strip ---------- */
+  .tech-strip{
+    display:flex;flex-wrap:wrap;gap:0;margin:1.75rem 0 3.25rem;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+  }
+  .tech-strip > div{
+    padding:.7rem 1.5rem .7rem 0;margin-right:1.5rem;
+    border-right:1px solid var(--line);
+  }
+  .tech-strip > div:last-child{border-right:0;margin-right:0}
+  .tech-strip dt{
+    font-size:.68rem;color:var(--faint);margin:0 0 .2rem;
+    text-transform:uppercase;letter-spacing:.05em;font-weight:500;
+  }
+  .tech-strip dd{margin:0;font-size:.86rem;font-weight:500;font-family:"IBM Plex Mono",monospace}
+
+  /* ---------- workspace ---------- */
+  .workspace{display:grid;grid-template-columns:1.05fr 1fr;column-gap:3.5rem}
+  @media (max-width:960px){ .workspace{grid-template-columns:1fr;row-gap:2.75rem} }
+
+  .workspace-form{
+    border-right:1px solid var(--line);padding-right:3.5rem;padding-bottom:1rem;
+  }
+  @media (max-width:960px){ .workspace-form{border-right:0;padding-right:0} }
+
+  fieldset{border:0;padding:0;margin:0 0 2.5rem}
+  fieldset:last-of-type{margin-bottom:2rem}
+  .section-label{
+    display:flex;align-items:baseline;gap:.6rem;margin:0 0 1.1rem;
+  }
+  .section-label span{
+    font-weight:600;font-size:.92rem;color:var(--ink);white-space:nowrap;
+  }
+  .section-label::after{content:"";flex:1;height:1px;background:var(--line)}
+  legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)} /* replaced visually by .section-label */
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1.15rem 1.1rem}
+  .field label{
+    display:flex;align-items:center;gap:.3rem;font-size:.82rem;color:var(--muted);margin-bottom:.35rem;
+  }
+  .field-control{position:relative}
+  select,input[type="number"]{
+    width:100%;padding:.55rem .65rem;font:inherit;font-size:.9rem;
+    background:var(--surface);color:var(--ink);
+    border:1px solid var(--line);border-radius:var(--radius-sm);
+    transition:border-color .12s ease;
+  }
+  select:focus-visible,input:focus-visible,button:focus-visible,.info-btn:focus-visible{
+    outline:2px solid var(--accent);outline-offset:1px;
+  }
+  select:hover,input:hover{border-color:#b6b0a3}
+  @media (prefers-color-scheme: dark){ select:hover,input:hover{border-color:#494d51} }
+  select:disabled{opacity:.6;cursor:not-allowed;background:var(--bg)}
+
+  .affix-dollar input{padding-left:1.55rem}
+  .affix-dollar .affix{
+    position:absolute;left:.65rem;top:50%;transform:translateY(-50%);
+    color:var(--muted);font-size:.9rem;pointer-events:none;
+  }
+  .affix-suffix input{padding-right:3.6rem}
+  .affix-suffix .affix{
+    position:absolute;right:.65rem;top:50%;transform:translateY(-50%);
+    color:var(--muted);font-size:.78rem;pointer-events:none;
+  }
+
+  .info-btn{
+    appearance:none;background:none;border:0;padding:0;margin:0;
+    width:15px;height:15px;line-height:1;font-size:.82rem;color:var(--faint);
+    cursor:help;border-radius:50%;flex:0 0 auto;
+  }
+  .info-btn:hover,.info-btn:focus-visible{color:var(--accent)}
+
+  .hint{color:var(--faint);font-size:.78rem;margin:1.5rem 0 0;max-width:52ch;line-height:1.6}
+
+  button[type="submit"]{
+    font:inherit;font-weight:500;font-size:.95rem;padding:.8rem 1.8rem;cursor:pointer;
+    background:var(--accent);color:var(--accent-ink);border:0;border-radius:var(--radius-sm);
+    margin-top:1.75rem;
+  }
+  button[type="submit"]:hover:not(:disabled){background:var(--accent-hover)}
+  button[type="submit"]:disabled{opacity:.6;cursor:progress}
+
+  /* ---------- shared tooltip ---------- */
+  .tooltip{
+    position:fixed;z-index:50;max-width:240px;padding:.55rem .7rem;
+    background:var(--ink);color:var(--bg);font-size:.8rem;line-height:1.45;
+    border-radius:var(--radius-sm);box-shadow:var(--shadow);
+  }
+  /* The pointer triangle, positioned by JS via --arrow-left so it keeps
+     pointing at the actual trigger icon even when the tooltip box itself
+     has been nudged sideways to stay on-screen. Faces down (sits at the
+     bottom of the bubble) when the tooltip is above its trigger, up
+     (sits at the top) when the tooltip is below it -- .tip-above is set
+     by showTooltip() based on which placement it actually chose. */
+  .tooltip::after{
+    content:"";position:absolute;left:calc(var(--arrow-left, 50%) - 6px);
+    width:0;height:0;border:6px solid transparent;
+  }
+  .tooltip:not(.tip-above)::after{ top:-6px; border-bottom-color:var(--ink) }
+  .tooltip.tip-above::after{ bottom:-6px; border-top-color:var(--ink) }
+  @media (prefers-color-scheme: dark){
+    .tooltip{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+    .tooltip:not(.tip-above)::after{border-bottom-color:var(--surface)}
+    .tooltip.tip-above::after{border-top-color:var(--surface)}
+  }
+
+  /* ---------- result: the one deliberately elevated surface ---------- */
+  .result-col{padding-left:0}
+  @media (min-width:961px){ .result-col{position:sticky;top:2.5rem} }
+  .result-surface{
+    background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);
+    padding:2rem 2.1rem;
+  }
+
+  .result-empty p:first-child{font-weight:600;font-size:1.05rem;margin:0 0 .5rem}
+  .result-empty p:last-child{color:var(--muted);margin:0;font-size:.92rem;line-height:1.6}
+
+  .result-updating{opacity:.55;transition:opacity .15s ease}
+
+  .result-kicker{
+    font-size:.72rem;color:var(--faint);text-transform:uppercase;letter-spacing:.06em;
+    font-weight:500;margin:0 0 1.1rem;
+  }
+
+  .gauge{text-align:center;margin-bottom:.75rem}
+  .gauge-svg{width:100%;max-width:260px;height:auto}
+  .gauge-track{stroke:var(--line);stroke-width:12;stroke-linecap:round}
+  .risk-low .gauge-fill{stroke:var(--risk-low)}
+  .risk-medium .gauge-fill{stroke:var(--risk-medium)}
+  .risk-high .gauge-fill{stroke:var(--risk-high)}
+  .gauge-fill{stroke-width:12;stroke-linecap:round}
+  .gauge-threshold{stroke:var(--ink);stroke-width:2}
+  .gauge-readout{margin-top:-2.6rem;display:flex;flex-direction:column;align-items:center;gap:.15rem}
+  .risk-tag{font-weight:600;font-size:.85rem}
+  .risk-low .risk-tag{color:var(--risk-low)}
+  .risk-medium .risk-tag{color:var(--risk-medium)}
+  .risk-high .risk-tag{color:var(--risk-high)}
+  .prob-number{
+    font-family:"IBM Plex Mono",monospace;font-weight:600;font-size:2.7rem;
+    line-height:1.05;letter-spacing:-.02em;
+  }
+  .risk-low .prob-number{color:var(--risk-low)}
+  .risk-medium .prob-number{color:var(--risk-medium)}
+  .risk-high .prob-number{color:var(--risk-high)}
+  .prob-label{font-size:.78rem;color:var(--muted)}
+  .prob-delta{font-size:.7rem;color:var(--faint);margin-top:.15rem}
+  .gauge-scale{display:flex;justify-content:space-between;font-size:.7rem;color:var(--faint);
+    max-width:260px;margin:.1rem auto 0;padding:0 .3rem}
+
+  .interpretation{margin:1.4rem 0 1.5rem;font-size:.94rem;line-height:1.6;text-align:center}
+
+  .facts{margin:0;padding-top:1.4rem;border-top:1px solid var(--line);display:grid;gap:.7rem}
+  .facts > div{display:flex;justify-content:space-between;gap:1rem;font-size:.87rem}
+  .facts dt{color:var(--muted);margin:0}
+  .facts dd{margin:0;font-weight:500;text-align:right}
+
+  .result-error{color:var(--risk-high);font-size:.92rem;padding:.25rem 0;text-align:center}
+  .result-error p{margin:0}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <span class="brand">Telco Churn Prediction</span>
+    <div class="topbar-right">
+      <span class="author">Amogh Jeenoor</span>
+      <div class="api-status"><span class="dot" id="status-dot"></span><span id="status-text">Checking service status&hellip;</span></div>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h1>Customer churn prediction</h1>
+    <p>Identify customers at risk of leaving using a trained <span id="hero-model">machine learning</span> model.</p>
+  </div>
+
+  <dl class="tech-strip">
+    <div><dt>Model</dt><dd id="strip-model">&ndash;</dd></div>
+    <div><dt>Decision threshold</dt><dd id="strip-threshold">&ndash;</dd></div>
+    <div><dt>API</dt><dd>FastAPI</dd></div>
+  </dl>
+
+  <div class="workspace">
+    <div class="workspace-form">
+      <form id="form">
+        <fieldset>
+          <legend>Customer details</legend>
+          <p class="section-label"><span>Customer details</span></p>
+          <div class="grid">
+            <div class="field">
+              <label for="tenure">Tenure <button type="button" class="info-btn" data-tip="The number of months the customer has been with the company." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <div class="field-control affix-suffix"><input id="tenure" type="number" min="0" max="120" value="2"><span class="affix">months</span></div>
+            </div>
+            <div class="field">
+              <label for="MonthlyCharges">Monthly charges <button type="button" class="info-btn" data-tip="The customer's current monthly bill." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <div class="field-control affix-dollar"><span class="affix">$</span><input id="MonthlyCharges" type="number" step="0.05" min="0" value="95.5"></div>
+            </div>
+            <div class="field">
+              <label for="TotalCharges">Total charges <button type="button" class="info-btn" data-tip="The total amount billed to the customer so far." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <div class="field-control affix-dollar"><span class="affix">$</span><input id="TotalCharges" type="number" step="0.05" min="0" value="190"></div>
+            </div>
+            <div class="field">
+              <label for="Contract">Contract <button type="button" class="info-btn" data-tip="The customer's current contract type." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="Contract"><option>Month-to-month</option><option>One year</option><option>Two year</option></select>
+            </div>
+            <div class="field">
+              <label for="PaymentMethod">Payment method <button type="button" class="info-btn" data-tip="How the customer pays their bill." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="PaymentMethod"><option>Electronic check</option><option>Mailed check</option><option>Bank transfer (automatic)</option><option>Credit card (automatic)</option></select>
+            </div>
+            <div class="field">
+              <label for="PaperlessBilling">Paperless billing <button type="button" class="info-btn" data-tip="Electronic billing instead of paper bills." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="PaperlessBilling"><option>Yes</option><option>No</option></select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Services</legend>
+          <p class="section-label"><span>Services</span></p>
+          <div class="grid">
+            <div class="field">
+              <label for="InternetService">Internet service <button type="button" class="info-btn" data-tip="The type of internet service on the account." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="InternetService"><option>Fiber optic</option><option>DSL</option><option>No</option></select>
+            </div>
+            <div class="field">
+              <label for="PhoneService">Phone service <button type="button" class="info-btn" data-tip="Phone service on the account." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="PhoneService"><option>Yes</option><option>No</option></select>
+            </div>
+            <div class="field">
+              <label for="MultipleLines">Multiple lines <button type="button" class="info-btn" data-tip="Additional phone lines on the account." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="MultipleLines"><option>No</option><option>Yes</option><option>No phone service</option></select>
+            </div>
+            <div class="field">
+              <label for="OnlineSecurity">Online security <button type="button" class="info-btn" data-tip="Security add-on for the customer's internet service." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="OnlineSecurity" data-addon><option>No</option><option>Yes</option></select>
+            </div>
+            <div class="field">
+              <label for="OnlineBackup">Online backup <button type="button" class="info-btn" data-tip="Backup add-on for the customer's internet service." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="OnlineBackup" data-addon><option>No</option><option>Yes</option></select>
+            </div>
+            <div class="field">
+              <label for="DeviceProtection">Device protection <button type="button" class="info-btn" data-tip="Device protection plan." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="DeviceProtection" data-addon><option>No</option><option>Yes</option></select>
+            </div>
+            <div class="field">
+              <label for="TechSupport">Tech support <button type="button" class="info-btn" data-tip="Technical support plan." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="TechSupport" data-addon><option>No</option><option>Yes</option></select>
+            </div>
+            <div class="field">
+              <label for="StreamingTV">Streaming TV <button type="button" class="info-btn" data-tip="TV streaming service." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="StreamingTV" data-addon><option>Yes</option><option>No</option></select>
+            </div>
+            <div class="field">
+              <label for="StreamingMovies">Streaming movies <button type="button" class="info-btn" data-tip="Movie streaming service." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="StreamingMovies" data-addon><option>Yes</option><option>No</option></select>
+            </div>
+          </div>
+        </fieldset>
+
+        <fieldset>
+          <legend>Demographics</legend>
+          <p class="section-label"><span>Demographics</span></p>
+          <div class="grid">
+            <div class="field">
+              <label for="gender">Gender <button type="button" class="info-btn" data-tip="The customer's recorded gender." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="gender"><option>Female</option><option>Male</option></select>
+            </div>
+            <div class="field">
+              <label for="SeniorCitizen">Senior citizen <button type="button" class="info-btn" data-tip="Senior customer classification." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="SeniorCitizen"><option>No</option><option>Yes</option></select>
+            </div>
+            <div class="field">
+              <label for="Partner">Partner <button type="button" class="info-btn" data-tip="Partner associated with the account." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="Partner"><option>Yes</option><option>No</option></select>
+            </div>
+            <div class="field">
+              <label for="Dependents">Dependents <button type="button" class="info-btn" data-tip="Dependents associated with the account." aria-describedby="info-tooltip" aria-expanded="false">&#9432;</button></label>
+              <select id="Dependents"><option>No</option><option>Yes</option></select>
+            </div>
+          </div>
+        </fieldset>
+
+        <button type="submit" id="go"><span id="go-label">Predict Churn</span></button>
+        <p class="hint">Setting internet service to "No" automatically marks the six add-on services as not applicable, and setting phone service to "No" does the same for multiple lines &mdash; matching how the model was trained.</p>
+      </form>
+    </div>
+
+    <div class="result-col">
+      <div class="result-surface">
+        <div class="result-empty" id="result">
+          <p>Ready to assess churn risk</p>
+          <p>Enter customer details and run the model to generate a prediction.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tooltip" id="info-tooltip" role="tooltip" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>
