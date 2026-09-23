@@ -60,9 +60,7 @@ def clean(frame: pd.DataFrame) -> pd.DataFrame:
 def main() -> None:
     ensure_dirs()
     if not RAW_CSV.exists():
-        raise FileNotFoundError(
-            f"{RAW_CSV} not found. Run `python -m src.data.download` first."
-        )
+        raise FileNotFoundError(f"{RAW_CSV} not found. Run `python -m src.data.download` first.")
 
     raw = pd.read_csv(RAW_CSV)
     frame = clean(raw)

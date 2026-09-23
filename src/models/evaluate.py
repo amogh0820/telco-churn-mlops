@@ -123,9 +123,7 @@ def choose_threshold(
     return best
 
 
-def full_report(
-    y_true: np.ndarray, y_proba: np.ndarray, threshold: float
-) -> dict[str, float]:
+def full_report(y_true: np.ndarray, y_proba: np.ndarray, threshold: float) -> dict[str, float]:
     report = threshold_free_metrics(y_true, y_proba)
     report.update(metrics_at_threshold(y_true, y_proba, threshold))
     report["campaign_value"] = float(campaign_value(y_true, y_proba, threshold))

@@ -70,8 +70,7 @@ def test_predict_returns_a_calibrated_shape(client):
 def test_month_to_month_scores_higher_than_two_year(client):
     """A sanity check on direction, not on a specific number."""
     risky = client.post("/predict", json=VALID_CUSTOMER).json()
-    safe_payload = {**VALID_CUSTOMER, "Contract": "Two year", "tenure": 60,
-                    "TotalCharges": 5730.0}
+    safe_payload = {**VALID_CUSTOMER, "Contract": "Two year", "tenure": 60, "TotalCharges": 5730.0}
     safe = client.post("/predict", json=safe_payload).json()
     assert risky["churn_probability"] > safe["churn_probability"]
 

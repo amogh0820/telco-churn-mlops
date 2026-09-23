@@ -30,11 +30,11 @@ def log_sklearn_model(model: Any, artifact_name: str = "model", **kwargs: Any):
     params = inspect.signature(mlflow.sklearn.log_model).parameters
     key = "name" if "name" in params else "artifact_path"
     return mlflow.sklearn.log_model(
-    sk_model=model,
-    serialization_format="cloudpickle",
-    **{key: artifact_name},
-    **kwargs,
-)
+        sk_model=model,
+        serialization_format="cloudpickle",
+        **{key: artifact_name},
+        **kwargs,
+    )
 
 
 def promote(model_uri: str, registered_name: str, alias: str) -> int:
@@ -46,8 +46,6 @@ def promote(model_uri: str, registered_name: str, alias: str) -> int:
     """
     version = mlflow.register_model(model_uri=model_uri, name=registered_name)
     client = MlflowClient()
-    client.set_registered_model_alias(
-        name=registered_name, alias=alias, version=version.version
-    )
+    client.set_registered_model_alias(name=registered_name, alias=alias, version=version.version)
     log.info("Registered %s v%s and set alias @%s", registered_name, version.version, alias)
     return int(version.version)

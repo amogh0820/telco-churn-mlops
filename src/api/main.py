@@ -92,9 +92,12 @@ async def root():
     if DEMO_HTML.exists():
         return FileResponse(DEMO_HTML)
     return {"service": "telco-churn-api", "docs": "/docs", "health": "/health"}
+
+
 @app.get("/app.js", include_in_schema=False)
 async def app_js():
     return FileResponse(DEMO_HTML.parent / "app.js")
+
 
 @app.get("/health", response_model=HealthResponse, tags=["ops"])
 async def health() -> HealthResponse:
@@ -169,9 +172,7 @@ async def predict_batch(payload: BatchRequest) -> BatchResponse:
     rows = [c.model_dump() for c in payload.customers]
     results = service.predict(rows)
     _STATS["predictions"] += len(results)
-    return BatchResponse(
-        predictions=[PredictionResponse(**r) for r in results], count=len(results)
-    )
+    return BatchResponse(predictions=[PredictionResponse(**r) for r in results], count=len(results))
 
 
 @app.exception_handler(Exception)

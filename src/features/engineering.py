@@ -63,8 +63,6 @@ def add_engineered_features(frame: pd.DataFrame) -> pd.DataFrame:
     else:  # pragma: no cover - defensive
         out["num_addons"] = 0.0
 
-    out["tenure_bucket"] = pd.cut(
-        tenure, bins=_TENURE_BINS, labels=_TENURE_LABELS
-    ).astype(str)
+    out["tenure_bucket"] = pd.cut(tenure, bins=_TENURE_BINS, labels=_TENURE_LABELS).astype(str)
 
     return out

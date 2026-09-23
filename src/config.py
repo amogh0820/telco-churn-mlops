@@ -104,9 +104,9 @@ CV_FOLDS = 5
 # These are deliberately explicit: the "best" threshold depends on what a
 # retention call costs and what a saved customer is worth.
 # --------------------------------------------------------------------------- #
-RETENTION_OFFER_COST = 60.0      # cost of contacting + discounting one customer
+RETENTION_OFFER_COST = 60.0  # cost of contacting + discounting one customer
 CUSTOMER_LIFETIME_VALUE = 500.0  # margin lost when a customer churns
-OFFER_ACCEPTANCE_RATE = 0.35     # share of targeted churners we actually save
+OFFER_ACCEPTANCE_RATE = 0.35  # share of targeted churners we actually save
 
 # --------------------------------------------------------------------------- #
 # MLflow

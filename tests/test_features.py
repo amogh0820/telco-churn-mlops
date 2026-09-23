@@ -85,8 +85,6 @@ def test_confusion_counts_add_up():
     y_true = np.array([0, 0, 1, 1])
     y_proba = np.array([0.1, 0.9, 0.2, 0.8])
     m = metrics_at_threshold(y_true, y_proba, 0.5)
-    total = (
-        m["true_negatives"] + m["false_positives"] + m["false_negatives"] + m["true_positives"]
-    )
+    total = m["true_negatives"] + m["false_positives"] + m["false_negatives"] + m["true_positives"]
     assert total == 4
     assert m["recall"] == pytest.approx(0.5)

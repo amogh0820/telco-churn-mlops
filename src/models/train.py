@@ -120,9 +120,7 @@ def candidate_models(quick: bool = False) -> dict[str, dict[str, Any]]:
 def load_split() -> tuple[pd.DataFrame, pd.Series, pd.DataFrame, pd.Series]:
     for path in (TRAIN_CSV, TEST_CSV):
         if not path.exists():
-            raise FileNotFoundError(
-                f"{path} not found. Run `python -m src.data.preprocess` first."
-            )
+            raise FileNotFoundError(f"{path} not found. Run `python -m src.data.preprocess` first.")
     train = pd.read_csv(TRAIN_CSV)
     test = pd.read_csv(TEST_CSV)
     drop = [c for c in (ID_COL, TARGET) if c in train.columns]
@@ -198,22 +196,16 @@ def main(use_mlflow: bool = True, quick: bool = False) -> dict[str, Any]:
                 results[name] = search
                 if use_mlflow:
                     mlflow.log_param("model_family", name)
-                    mlflow.log_params(
-                        {k: str(v) for k, v in search.best_params_.items()}
-                    )
+                    mlflow.log_params({k: str(v) for k, v in search.best_params_.items()})
                     mlflow.log_metric("cv_pr_auc", float(search.best_score_))
                     mlflow.log_metric(
                         "cv_pr_auc_std",
-                        float(
-                            search.cv_results_["std_test_score"][search.best_index_]
-                        ),
+                        float(search.cv_results_["std_test_score"][search.best_index_]),
                     )
 
         winner_name = max(results, key=lambda k: results[k].best_score_)
         winner = results[winner_name].best_estimator_
-        log.info(
-            "Winner: %s (CV PR-AUC %.4f)", winner_name, results[winner_name].best_score_
-        )
+        log.info("Winner: %s (CV PR-AUC %.4f)", winner_name, results[winner_name].best_score_)
 
         # Threshold is tuned on out-of-fold training predictions, never on test.
         oof_proba = cross_val_predict(
@@ -249,9 +241,7 @@ def main(use_mlflow: bool = True, quick: bool = False) -> dict[str, Any]:
                 "cv_pr_auc_std": float(s.cv_results_["std_test_score"][s.best_index_]),
                 "best_params": {k: str(v) for k, v in s.best_params_.items()},
             }
-            for name, s in sorted(
-                results.items(), key=lambda kv: kv[1].best_score_, reverse=True
-            )
+            for name, s in sorted(results.items(), key=lambda kv: kv[1].best_score_, reverse=True)
         }
         metadata = {
             "model_family": winner_name,
@@ -297,9 +287,7 @@ def main(use_mlflow: bool = True, quick: bool = False) -> dict[str, Any]:
         if use_mlflow:
             mlflow.log_param("winner", winner_name)
             mlflow.log_param("decision_threshold", choice.threshold)
-            mlflow.log_metrics(
-                {k: v for k, v in report.items() if isinstance(v, (int, float))}
-            )
+            mlflow.log_metrics({k: v for k, v in report.items() if isinstance(v, (int, float))})
             mlflow.log_artifact(str(METADATA_PATH))
             signature = infer_signature(X_train.head(50), test_proba[:50])
             info = log_sklearn_model(
